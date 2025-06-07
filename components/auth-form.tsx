@@ -2,7 +2,6 @@
 
 import { z } from "zod";
 import Link from "next/link";
-import Image from "next/image";
 import { toast } from "sonner";
 import { auth } from "@/firebase/client";
 import { useForm } from "react-hook-form";
@@ -16,7 +15,6 @@ import {
 
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
-
 import { signIn, signUp } from "@/lib/actions/auth.action";
 import FormField from "./form-field";
 
@@ -46,11 +44,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
       if (type === "sign-up") {
         const { name, email, password } = data;
 
-        const userCredential = await createUserWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
 
         const result = await signUp({
           uid: userCredential.user.uid,
@@ -69,23 +63,15 @@ const AuthForm = ({ type }: { type: FormType }) => {
       } else {
         const { email, password } = data;
 
-        const userCredential = await signInWithEmailAndPassword(
-          auth,
-          email,
-          password
-        );
-
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
         const idToken = await userCredential.user.getIdToken();
+
         if (!idToken) {
           toast.error("Sign in Failed. Please try again.");
           return;
         }
 
-        await signIn({
-          email,
-          idToken,
-        });
-
+        await signIn({ email, idToken });
         toast.success("Signed in successfully.");
         router.push("/");
       }
@@ -98,19 +84,17 @@ const AuthForm = ({ type }: { type: FormType }) => {
   const isSignIn = type === "sign-in";
 
   return (
-    <div className="card-border lg:min-w-[566px]">
-      <div className="flex flex-col gap-6 card py-14 px-10">
-        <div className="flex flex-col gap-2 justify-center items-center">
-          {/* <Image src="/logo.svg" alt="logo" height={32} width={38} /> */}
-          <h2 className="text-primary-100">Echo Mate</h2>
-          <h3 className="text-primary-200">AI Voice Executive Assistant</h3>
+    <div className="card-border w-full max-w-sm mx-auto">
+      <div className="card px-6 py-10 flex flex-col gap-6">
+        <div className="text-center space-y-1">
+          <h2 className="text-lg font-semibold text-primary-200">Echo Mate</h2>
+          <h3 className="text-sm text-primary-300">AI Voice Executive Assistant</h3>
         </div>
-
 
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
-            className="w-full space-y-6 mt-4 form"
+            className="space-y-5 w-full form"
           >
             {!isSignIn && (
               <FormField
@@ -126,7 +110,7 @@ const AuthForm = ({ type }: { type: FormType }) => {
               control={form.control}
               name="email"
               label="Email"
-              placeholder="Your email address"
+              placeholder="Your email"
               type="email"
             />
 
@@ -134,21 +118,21 @@ const AuthForm = ({ type }: { type: FormType }) => {
               control={form.control}
               name="password"
               label="Password"
-              placeholder="Enter your password"
+              placeholder="Your password"
               type="password"
             />
 
-            <Button className="btn" type="submit">
+            <Button className="btn w-full min-h-10 text-sm" type="submit">
               {isSignIn ? "Sign In" : "Create an Account"}
             </Button>
           </form>
         </Form>
 
-        <p className="text-center">
-          {isSignIn ? "No account yet?" : "Have an account already?"}
+        <p className="text-center text-sm">
+          {isSignIn ? "No account yet?" : "Already have an account?"}
           <Link
             href={!isSignIn ? "/sign-in" : "/sign-up"}
-            className="font-bold text-user-primary ml-1"
+            className="ml-1 font-semibold text-user-primary hover:underline"
           >
             {!isSignIn ? "Sign In" : "Sign Up"}
           </Link>
